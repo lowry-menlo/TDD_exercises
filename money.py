@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import abstractmethod
 from  expression import Expression
+from pair import Pair
 
 
 class Money(Expression):
@@ -21,6 +22,10 @@ class Money(Expression):
     def plus(self, addend):
         return Sum(self, addend)
     
+    def reduce(self, bank:Bank, to:str):
+        rate: int = bank.rate(self._currency, to)
+        return Money(self._amount / rate, to)
+    
     
     @staticmethod
     def dollar(amount: int):
@@ -32,13 +37,24 @@ class Money(Expression):
     
 
 class Bank():
+    def __init__(self) -> None:
+        self.exchange_rates: dict = {
+
+        }
+
     def reduce(self, source: Expression, to: str):
-        if (isinstance(source, Money)):
-            return source
-        sum:Sum = source
-        return sum.reduce(to)
-        # return source.reduce(to)
+        return source.reduce(self, to)
     
+    def rate(self, original_currency: str, to: str) -> int:
+        if (original_currency == to):
+            return 1
+        else:
+            exchange_rate = self.exchange_rates[Pair(original_currency, to)]
+            return exchange_rate
+    
+    def add_rate(self, original_currency: str, to: str, exchange_rate:int):
+        self.exchange_rates[Pair(original_currency, to)] = exchange_rate
+
 
 class Sum(Expression):
     def __init__(self, augend:Money, addend:Money):
