@@ -1,5 +1,5 @@
-from money import Money
 import unittest
+from money import Money
 from money import Bank
 from expression import Expression
 from money import Sum
@@ -68,16 +68,47 @@ class Test_Money(unittest.TestCase):
         self.assertEqual(Money.dollar(1), result)
 
     def test_reduce_money_in_different_currency(self):
-        #assemble:
         bank = Bank()
         bank.add_rate("CHF", "USD", 2)
 
-        #act:
         result = bank.reduce(Money.franc(2), "USD")
 
-        #assert:
         self.assertEqual(Money.dollar(1), result)
 
+    def test_mixed_addition(self):
+        five_bucks: Expression = Money.dollar(5)
+        ten_francs: Expression = Money.franc(10)
+        bank = Bank()
+        bank.add_rate("CHF", "USD", 2)
+
+        result: Money = bank.reduce(five_bucks.plus(ten_francs), "USD")
+
+        self.assertEqual(Money.dollar(10), result)
+
+    def test_sum_plus_money(self):
+        five_bucks: Expression = Money.dollar(5)
+        ten_francs: Expression = Money.franc(10)
+        bank = Bank()
+        bank.add_rate("CHF", "USD", 2)
+
+        sum:Expression = Sum(five_bucks, ten_francs).plus(five_bucks)
+        result: Money = bank.reduce(sum, "USD")
+
+        self.assertEqual(Money.dollar(15), result)
+
+    def test_sum_times(self):
+        five_bucks: Expression = Money.dollar(5)
+        ten_francs: Expression = Money.franc(10)
+        bank = Bank()
+        bank.add_rate("CHF", "USD", 2)
+
+        sum: Expression = Sum(five_bucks, ten_francs).times(2)
+        result: Money = bank.reduce(sum, "USD")
+
+        self.assertEqual(Money.dollar(20), result)
+
+
+    
 
 
 
